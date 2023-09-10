@@ -19,16 +19,22 @@ public class Controller {
 
     public static List<User> users = new ArrayList<>();
 
+    public Controller() {
+        users.add( new User("Alex","alex@google.com","asdf",1));
+        users.add( new User("Nikolay","nick@google.com","qwerty",2));
+        users.add( new User("Peter","peter@google.com","zzccxxvv",3));
+    }
+
     @GET
     @Produces (MediaType.APPLICATION_JSON)
-    public Response getMovies(){
+    public Response getAllUsers(){
         return Response.ok(users).build();
     }
 
     @GET
     @Produces (MediaType.TEXT_PLAIN)
     @Path("/size")
-    public Integer countMovies(){
+    public Integer countUsers(){
         return users.size();
     }
 
@@ -36,10 +42,12 @@ public class Controller {
     /*
     test query
 
-    {
-  "userId":1,
-  "name":"MyFirstJSONMovie"
-    }
+        {
+        "name": "Alla",
+        "email": "alla@google.com",
+        "password": "asdf",
+        "userId": 4
+        }
      */
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -53,7 +61,7 @@ public class Controller {
     @Path("{userId}/{name}")
     @Produces(MediaType.APPLICATION_JSON)
 //    @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateMovie (
+    public Response updateUser (
             @PathParam("userId") Integer userId,
             @PathParam("name") String name){
         users = users.stream().map(user -> {
@@ -68,7 +76,7 @@ public class Controller {
     @DELETE
     @Path("{userId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteMovie(
+    public Response deleteUser(
         @PathParam("userId") Integer userId){
 
         Optional<User> userToDelete = users.stream()
