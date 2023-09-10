@@ -1,12 +1,31 @@
 package org;
 
+import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class User {
+@Entity
+@Table(name = "users")
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Column
     private String name;
+
+    @Column
     private String email;
+
+    @Column
     private String password;
+
+    @Id
+    @Column
     private Integer userId;
+
+    public User() {
+
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -58,5 +77,11 @@ public class User {
         this.email = email;
         this.password = password;
         this.userId = userId;
+    }
+
+    public User(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
     }
 }
