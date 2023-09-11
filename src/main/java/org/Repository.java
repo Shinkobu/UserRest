@@ -9,18 +9,20 @@ public class Repository {
             .createEntityManagerFactory("UserRest");
 
     public static void main(String[] args) {
-        addUser("Paolo", "paolo@google.com", "jfjfjf",2);
-        addUser("Paolo", "paolo@google.com", "jfjfjf",3);
+        Repository repository = new Repository();
+
+//        addUser("John Snow", "realstark@google.com", "jfjfjf");
+//        addUser("Darth Wader", "deathstar@google.com", "jfjfjf");
 //        addUser("Mario", "mario@google.com", "jfjfj111222f");
 //        addUser("Luigi", "luigi@google.com", "jfjfjf");
-        getAllUsers();
 //        getUser(3);
-//        changeUserName(4, "Mark");
-//        deleteUser(1);
+//        changeUser(4,"Prince Igor", "rusforever@google.com", "jfjfjf");
+        repository.getAllUsers();
+//        deleteUser(3);
         ENTITY_MANAGER_FACTORY.close();
     }
 
-    public static void addUser(String name, String email, String password, int id) {
+    public void addUser(String name, String email, String password) {
         // The EntityManager class allows operations such as create, read, update, delete
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
         // Used to issue transactions on the EntityManager
@@ -36,7 +38,7 @@ public class Repository {
             user.setName(name);
             user.setEmail(email);
             user.setPassword(password);
-            user.setUserId(id);
+//            user.setUserId(id);
 
             // Save the user object
             em.persist(user);
@@ -53,16 +55,16 @@ public class Repository {
         }
     }
 
-    public static void getUser(int id) {
+    public void getUser(int id) {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 
         // the lowercase c refers to the object
-        // :custID is a parameterized query thats value is set below
-        String query = "SELECT c FROM users c WHERE c.id = :userId";
+        // :userId is a parameterized query thats value is set below
+        String query = "SELECT c FROM User c WHERE c.userId = :userId";
 
         // Issue the query and get a matching User
         TypedQuery<User> tq = em.createQuery(query, User.class);
-        tq.setParameter("custID", id);
+        tq.setParameter("userId", id);
 
         User user = null;
         try {
@@ -78,20 +80,20 @@ public class Repository {
         }
     }
 
-    public static void getAllUsers() {
+    public List<User> getAllUsers() {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 
         // the lowercase c refers to the object
-        // :custID is a parameterized query thats value is set below
         String strQuery = "SELECT c FROM User c WHERE c.id IS NOT NULL";
 
         // Issue the query and get a matching User
         TypedQuery<User> tq = em.createQuery(strQuery, User.class);
-        List<User> custs;
+        List<User> users = null;
         try {
             // Get matching user object and output
-            custs = tq.getResultList();
-            custs.forEach(cust->System.out.println(cust.getName() + " " + cust.getUserId()));
+            users = tq.getResultList();
+//            users.forEach(user->System.out.println(user.getName() + " " + user.getUserId()));
+
         }
         catch(NoResultException ex) {
             ex.printStackTrace();
@@ -99,9 +101,10 @@ public class Repository {
         finally {
             em.close();
         }
+        return users;
     }
 
-    public static void changeUserName(int id, String userName) {
+    public void changeUser(int id, String name, String email, String password) {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
         EntityTransaction et = null;
 
@@ -114,7 +117,9 @@ public class Repository {
 
             // Find user and make changes
             user = em.find(User.class, id);
-            user.setName(userName);
+            user.setName(name);
+            user.setPassword(password);
+            user.setEmail(email);
 
             // Save the user object
             em.persist(user);
@@ -131,7 +136,7 @@ public class Repository {
         }
     }
 
-    public static void deleteUser(int id) {
+    public void deleteUser(int id) {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
         EntityTransaction et = null;
         User user = null;
