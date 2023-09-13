@@ -55,7 +55,7 @@ public class Repository {
         }
     }
 
-    public void getUser(int id) {
+    public User getUser(int id) {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 
         // the lowercase c refers to the object
@@ -70,14 +70,15 @@ public class Repository {
         try {
             // Get matching user object and output
             user = tq.getSingleResult();
-            System.out.println(user.getName() + " " + user.getUserId());
-        }
-        catch(NoResultException ex) {
-            ex.printStackTrace();
+//            System.out.println(user.getName() + " " + user.getUserId());
+
+        }catch (NoResultException ex){
+            return null;
         }
         finally {
             em.close();
         }
+        return user;
     }
 
     public List<User> getAllUsers() {
