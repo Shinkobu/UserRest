@@ -4,6 +4,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.Exceptions.InvalidEmailException;
+import org.Exceptions.InvalidPasswordException;
 import org.Exceptions.InvalidUserNameException;
 
 import java.util.ArrayList;
@@ -51,8 +52,8 @@ public class Controller {
 //            return Response.ok(repository.getAllUsers()).build();
                 return Response.ok("User " + newUser.getName() + " successfully added to database").build();
             }
-        } catch (InvalidEmailException exception, InvalidUserNameException exception) {
-            return Response.ok(e.getMessage())
+        } catch (InvalidEmailException | InvalidUserNameException | InvalidPasswordException ex) {
+            return Response.ok(ex.getMessage())
                     .status(400)
                     .build();
         }
