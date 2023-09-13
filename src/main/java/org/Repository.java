@@ -5,22 +5,9 @@ import java.util.List;
 
 public class Repository {
     // Create an EntityManagerFactory when you start the application
-    private static final EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence
-            .createEntityManagerFactory("UserRest");
+    private static final EntityManagerFactory ENTITY_MANAGER_FACTORY =
+            Persistence.createEntityManagerFactory("UserRest");
 
-    public static void main(String[] args) {
-        Repository repository = new Repository();
-
-//        addUser("John Snow", "realstark@google.com", "jfjfjf");
-//        addUser("Darth Wader", "deathstar@google.com", "jfjfjf");
-//        addUser("Mario", "mario@google.com", "jfjfj111222f");
-//        addUser("Luigi", "luigi@google.com", "jfjfjf");
-//        getUser(3);
-//        changeUser(4,"Prince Igor", "rusforever@google.com", "jfjfjf");
-        repository.getAllUsers();
-//        deleteUser(3);
-        ENTITY_MANAGER_FACTORY.close();
-    }
 
     public void addUser(String name, String email, String password) {
         // The EntityManager class allows operations such as create, read, update, delete
