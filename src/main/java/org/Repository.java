@@ -1,5 +1,7 @@
 package org;
 
+import org.Exceptions.EmailExistsException;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -59,13 +61,36 @@ public class Repository {
             user = tq.getSingleResult();
 //            System.out.println(user.getName() + " " + user.getUserId());
 
-        }catch (NoResultException ex){
+        } catch (NoResultException ex) {
             return null;
-        }
-        finally {
+        } finally {
             em.close();
         }
         return user;
+    }
+
+    public boolean isEmailPresent(String email) throws EmailExistsException {
+        EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
+        boolean isPresent = false;
+        // the lowercase c refers to the object
+        // :userId is a parameterized query thats value is set below
+        String query = "SELECT c FROM User c WHERE c.email = :email";
+
+        // Issue the query and get a matching User
+        TypedQuery<User> tq = em.createQuery(query, User.class);
+        tq.setParameter("email", email);
+
+        User user = null;
+        try {
+            // Get matching user object and output
+            user = tq.getSingleResult();
+            isPresent = true;
+            throw new EmailExistsException("EmailExistsException: User with email " + email + " already exists!");
+        } catch (NoResultException ex) {
+        } finally {
+            em.close();
+        }
+        return isPresent;
     }
 
     public List<User> getAllUsers() {
@@ -82,11 +107,9 @@ public class Repository {
             users = tq.getResultList();
 //            users.forEach(user->System.out.println(user.getName() + " " + user.getUserId()));
 
-        }
-        catch(NoResultException ex) {
+        } catch (NoResultException ex) {
             ex.printStackTrace();
-        }
-        finally {
+        } finally {
             em.close();
         }
         return users;

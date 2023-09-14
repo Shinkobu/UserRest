@@ -3,6 +3,7 @@ package org;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.Exceptions.EmailExistsException;
 import org.Exceptions.InvalidEmailException;
 import org.Exceptions.InvalidPasswordException;
 import org.Exceptions.InvalidUserNameException;
@@ -47,12 +48,16 @@ public class Controller {
         try {
             if (Validator.isNameValid(newUser.getName()) &&
                     Validator.isEmailValid(newUser.getEmail()) &&
-                    Validator.isPasswordValid(newUser.getPassword())) {
+                    Validator.isPasswordValid(newUser.getPassword()) &&
+                    !repository.isEmailPresent(newUser.getEmail())) {
+
                 repository.addUser(newUser.getName(), newUser.getEmail(), newUser.getPassword());
+
 //            return Response.ok(repository.getAllUsers()).build();
                 return Response.ok("User " + newUser.getName() + " successfully added to database").build();
             }
-        } catch (InvalidEmailException | InvalidUserNameException | InvalidPasswordException ex) {
+        } catch (InvalidEmailException | InvalidUserNameException |
+                 InvalidPasswordException | EmailExistsException ex) {
             return Response.ok(ex.getMessage())
                     .status(400)
                     .build();
