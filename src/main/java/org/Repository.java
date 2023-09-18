@@ -1,16 +1,25 @@
 package org;
 
 import org.Exceptions.EmailExistsException;
+import org.Exceptions.IdNotFoundException;
 
 import javax.persistence.*;
 import java.util.List;
 
+/**
+ * Репозиторий для работы с базой данных
+ */
 public class Repository {
-    // Create an EntityManagerFactory when you start the application
+
     private static final EntityManagerFactory ENTITY_MANAGER_FACTORY =
             Persistence.createEntityManagerFactory("UserRest");
 
-
+    /**
+     * Создание нового пользователя
+     * @param name - имя пользователя
+     * @param email - почта пользователя
+     * @param password - пароль пользователя
+     */
     public void addUser(String name, String email, String password) {
         // The EntityManager class allows operations such as create, read, update, delete
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
@@ -27,7 +36,6 @@ public class Repository {
             user.setName(name);
             user.setEmail(email);
             user.setPassword(password);
-//            user.setUserId(id);
 
             // Save the user object
             em.persist(user);
@@ -44,7 +52,12 @@ public class Repository {
         }
     }
 
-    public User getUser(int id) throws NoResultException {
+    /**
+     * Получение данных о пользователе по id
+     * @param id - id пользователя
+     * @throws NoResultException - исключение, если id нет в базе данных
+     */
+    public User getUser(int id) throws IdNotFoundException {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 
         // the lowercase c refers to the object
@@ -59,14 +72,20 @@ public class Repository {
         try {
             // Get matching user object and output
             user = tq.getSingleResult();
-//            System.out.println(user.getName() + " " + user.getUserId());
-
-        } finally {
+        } catch (NoResultException ex){
+            throw new IdNotFoundException ("IdNotFoundException: Пользователь с id " + id + " не существует");
+        }
+        finally {
             em.close();
         }
         return user;
     }
 
+    /**
+     * Проверка есть ли в базе данных указанный email
+     * @param email - email для проверки
+     * @throws EmailExistsException - исключение, если email найден
+     */
     public boolean isEmailPresent(String email) throws EmailExistsException {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
         boolean isPresent = false;
@@ -83,14 +102,17 @@ public class Repository {
             // Get matching user object and output
             user = tq.getSingleResult();
             isPresent = true;
-            throw new EmailExistsException("EmailExistsException: User with email " + email + " already exists!");
+            throw new EmailExistsException("EmailExistsException: Пользователь с email " + email + " уже существует!");
         } catch (NoResultException ex) {
+            return isPresent;
         } finally {
             em.close();
         }
-        return isPresent;
     }
 
+    /**
+     * Получение данных всех пользователей
+     */
     public List<User> getAllUsers() {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 
@@ -103,8 +125,6 @@ public class Repository {
         try {
             // Get matching user object and output
             users = tq.getResultList();
-//            users.forEach(user->System.out.println(user.getName() + " " + user.getUserId()));
-
         } catch (NoResultException ex) {
             ex.printStackTrace();
         } finally {
@@ -113,12 +133,18 @@ public class Repository {
         return users;
     }
 
+    /**
+     * Изменение пользователя по id
+     * @param id - id пользователя, которого нужно изменить
+     * @param name - новое имя
+     * @param email - новый email
+     * @param password - новый пароль
+     */
     public void changeUser(int id, String name, String email, String password) {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
         EntityTransaction et = null;
 
         User user = null;
-
         try {
             // Get transaction and start
             et = em.getTransaction();
@@ -145,6 +171,10 @@ public class Repository {
         }
     }
 
+    /**
+     * Удаление пользователя по id
+     * @param id
+     */
     public void deleteUser(int id) {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
         EntityTransaction et = null;

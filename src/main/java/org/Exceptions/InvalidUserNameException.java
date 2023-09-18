@@ -1,6 +1,8 @@
 package org.Exceptions;
 
-public class InvalidUserNameException extends Exception {
+import org.User;
+
+public class InvalidUserNameException extends UserRestException {
     public InvalidUserNameException(String s) {
         super(s);
     }

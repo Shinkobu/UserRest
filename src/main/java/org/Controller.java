@@ -3,10 +3,7 @@ package org;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.Exceptions.EmailExistsException;
-import org.Exceptions.InvalidEmailException;
-import org.Exceptions.InvalidPasswordException;
-import org.Exceptions.InvalidUserNameException;
+import org.Exceptions.UserRestException;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -15,18 +12,18 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import javax.persistence.NoResultException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+/**
+ * REST API Контроллер
+ */
 @Path("/users")
 @Tag(name = "Users Controller", description = "Users REST APIs")
 public class Controller {
 
-    public static List<User> users = new ArrayList<>();
     Repository repository = new Repository();
 
+    /**
+     * Возвращает всех пользователей из базы данных
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(
@@ -43,6 +40,9 @@ public class Controller {
         return Response.ok(repository.getAllUsers()).build();
     }
 
+    /**
+     * Возвращает число пользователей в базе данных
+     */
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/size")
@@ -60,15 +60,10 @@ public class Controller {
         return repository.getAllUsers().size();
     }
 
-
-    /*
-    test query
-
-        {
-        "name": "Alla",
-        "email": "alla@google.com",
-        "password": "asdf"
-        }
+    /**
+     * Создаёт нового пользователя
+     *
+     * @param newUser - новый пользователь
      */
     @POST
     @Produces(MediaType.APPLICATION_JSON)
@@ -94,25 +89,28 @@ public class Controller {
                     required = true,
                     content = @Content(schema = @Schema(implementation = User.class))
             )
-            User newUser) {
+            User newUser) throws UserRestException {
+
         try {
-            if (Validator.validator(newUser) &&
-                    !repository.isEmailPresent(newUser.getEmail())) {
-
+            // проверка на валидность и наличие пользователя с email в базе данных
+            if (Validator.validator(newUser) && !repository.isEmailPresent(newUser.getEmail())) {
                 repository.addUser(newUser.getName(), newUser.getEmail(), newUser.getPassword());
-
                 return Response.status(Response.Status.CREATED)
                         .entity("Пользователь " + newUser.getName() + " успешно добавлен в базу данных").build();
-            } // TODO one exception handler and edit the annotations
-        } catch (InvalidEmailException | InvalidUserNameException |
-                 InvalidPasswordException | EmailExistsException ex) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(ex.getMessage()).build();
+            }
+        } catch (UserRestException ex) {
+            throw new UserRestException(ex.getMessage());
         }
         return Response.status(Response.Status.BAD_REQUEST)
-                .entity("Возникла ошибка с пользователем: " + newUser.getName()).build();
+                .entity("Возникла ошибка при создании пользователя: " + newUser.getName()).build();
     }
 
+    /**
+     * Обновление данных существующего пользователя
+     *
+     * @param userId - Id пользователя для обновления
+     * @param user - обновлённый пользователь
+     */
     @PUT
     @Path("{userId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -141,7 +139,7 @@ public class Controller {
             @Parameter(
                     description = "Обновлённый пользователь",
                     required = true
-            ) User user) {
+            ) User user) throws UserRestException {
 
 
         try {
@@ -149,22 +147,23 @@ public class Controller {
             User oldUser = repository.getUser(userId);
             // проверка на валидность
             if (Validator.validator(user)) {
-
                 // изменение данных
                 repository.changeUser(userId, user.getName(), user.getEmail(), user.getPassword());
                 return Response.status(Response.Status.OK)
                         .entity("Пользователь " + user.getName() + " обновлён").build();
-            } // TODO one exception handler
-        } catch (InvalidEmailException | InvalidUserNameException | InvalidPasswordException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
-        } catch (NoResultException ex) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Ошибка. Не найден пользователь с Id = " + userId + "!").build();
+            }
+        }  catch (UserRestException ex) {
+            throw new UserRestException(ex.getMessage());
         }
         return Response.status(Response.Status.BAD_REQUEST)
-                .entity("Возникла ошибка с пользователем: " + user.getName()).build();
+                .entity("Возникла при обновлении пользователя: " + user.getName()).build();
     }
 
+    /**
+     * Удаление пользователя по id
+     *
+     * @param userId - id пользователя к удалению
+     */
     @DELETE
     @Path("{userId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -188,13 +187,12 @@ public class Controller {
                     description = "id пользователя, которого нужно удалить",
                     required = true
             )
-            @PathParam("userId") Integer userId) {
+            @PathParam("userId") Integer userId) throws UserRestException {
         try {
             // проверка на наличие пользователя с id в базе данных
             User user = repository.getUser(userId);
-        } catch (NoResultException ex) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Ошибка. Не найден пользователь с Id = " + userId).build();
+        } catch (UserRestException ex) {
+            throw new UserRestException(ex.getMessage());
         }
         repository.deleteUser(userId);
         return Response.status(Response.Status.OK).entity("Пользователь с Id " + userId + " удалён").build();
