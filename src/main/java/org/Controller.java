@@ -32,11 +32,11 @@ public class Controller {
     @Operation(
             operationId = "getAllUsers",
             summary = "getAllUsers",
-            description = "Get all users from database"
+            description = "Получить всех пользователей из базы данных"
     )
     @APIResponse(
             responseCode = "200",
-            description = "Operation completed",
+            description = "Операция успешно выполнена",
             content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     public Response getAllUsers() {
@@ -49,11 +49,11 @@ public class Controller {
     @Operation(
             operationId = "countUsers",
             summary = "countUsers",
-            description = "Get all users from database"
+            description = "Получить число пользователей в базе данных"
     )
     @APIResponse(
             responseCode = "200",
-            description = "Operation completed",
+            description = "Операция успешно выполнена",
             content = @Content(mediaType = MediaType.TEXT_PLAIN)
     )
     public Integer countUsers() {
@@ -76,35 +76,33 @@ public class Controller {
     @Operation(
             operationId = "createUser",
             summary = "createUser",
-            description = "Create a new user"
+            description = "Создать нового пользователя"
     )
     @APIResponse(
             responseCode = "201",
-            description = "User created",
+            description = "Пользователь создан",
             content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
             responseCode = "400",
-            description = "Exception or error occured",
+            description = "Возникла ошибка",
             content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     public Response createUser(
             @RequestBody(
-                    description = "User to create",
+                    description = "Пользователь, который будет создан",
                     required = true,
                     content = @Content(schema = @Schema(implementation = User.class))
             )
             User newUser) {
         try {
-            if (Validator.isNameValid(newUser.getName()) &&
-                    Validator.isEmailValid(newUser.getEmail()) &&
-                    Validator.isPasswordValid(newUser.getPassword()) &&
+            if (Validator.validator(newUser) &&
                     !repository.isEmailPresent(newUser.getEmail())) {
 
                 repository.addUser(newUser.getName(), newUser.getEmail(), newUser.getPassword());
 
                 return Response.status(Response.Status.CREATED)
-                        .entity("User " + newUser.getName() + " successfully added to database").build();
+                        .entity("Пользователь " + newUser.getName() + " успешно добавлен в базу данных").build();
             } // TODO one exception handler and edit the annotations
         } catch (InvalidEmailException | InvalidUserNameException |
                  InvalidPasswordException | EmailExistsException ex) {
@@ -112,7 +110,7 @@ public class Controller {
                     .entity(ex.getMessage()).build();
         }
         return Response.status(Response.Status.BAD_REQUEST)
-                .entity("Error occurred with user: " + newUser.getName()).build();
+                .entity("Возникла ошибка с пользователем: " + newUser.getName()).build();
     }
 
     @PUT
@@ -122,26 +120,49 @@ public class Controller {
     @Operation(
             operationId = "updateUser",
             summary = "updateUser",
-            description = "Update an existing user"
+            description = "Обновить данные существующего пользователя"
     )
     @APIResponse(
             responseCode = "200",
-            description = "User updated",
+            description = "Пользователь обновлён",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Возникла ошибка",
             content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     public Response updateUser(
             @Parameter(
-                    description = "The id of the user to be updated",
+                    description = "id пользователя, которого нужно обновить",
                     required = true
             )
             @PathParam("userId") Integer userId,
             @Parameter(
-                    description = "New user data",
+                    description = "Обновлённый пользователь",
                     required = true
-            )
-            User user) {
-        repository.changeUser(userId, user.getName(), user.getEmail(), user.getPassword());
-        return Response.ok(repository.getAllUsers()).build();
+            ) User user) {
+
+
+        try {
+            // Проверка на наличие пользователя с таким ID
+            User oldUser = repository.getUser(userId);
+            // проверка на валидность
+            if (Validator.validator(user)) {
+
+                // изменение данных
+                repository.changeUser(userId, user.getName(), user.getEmail(), user.getPassword());
+                return Response.status(Response.Status.OK)
+                        .entity("Пользователь " + user.getName() + " обновлён").build();
+            } // TODO one exception handler
+        } catch (InvalidEmailException | InvalidUserNameException | InvalidPasswordException ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
+        } catch (NoResultException ex) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Ошибка. Не найден пользователь с Id = " + userId + "!").build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity("Возникла ошибка с пользователем: " + user.getName()).build();
     }
 
     @DELETE
@@ -150,55 +171,34 @@ public class Controller {
     @Operation(
             operationId = "deleteUser",
             summary = "deleteUser",
-            description = "Delete an existing user"
+            description = "Удалить существующего пользователя"
     )
     @APIResponse(
             responseCode = "204",
-            description = "User deleted",
+            description = "Пользователь удалён",
             content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     @APIResponse(
             responseCode = "400",
-            description = "User id not found",
+            description = "Возникла ошибка",
             content = @Content(mediaType = MediaType.APPLICATION_JSON)
     )
     public Response deleteUser(
             @Parameter(
-                    description = "The id of the user to be deleted",
+                    description = "id пользователя, которого нужно удалить",
                     required = true
             )
             @PathParam("userId") Integer userId) {
-
         try {
+            // проверка на наличие пользователя с id в базе данных
             User user = repository.getUser(userId);
         } catch (NoResultException ex) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("ERROR. No User found with userId = " + userId + "!").build();
+                    .entity("Ошибка. Не найден пользователь с Id = " + userId).build();
         }
         repository.deleteUser(userId);
-//        return Response.status(Response.Status.fromStatusCode(204))
-//                .entity("SUCCESS. User with userId " + userId + " deleted!").build();
-//        return Response.status(Response.Status.fromStatusCode(204))
-//                .entity("SUCCESS. User with userId " + userId + " deleted!").build();
-        return Response.ok("SUCCESS. User with userId " + userId + " deleted!")
-                .status(Response.Status.fromStatusCode(204))
-                .build(); //TODO
+        return Response.status(Response.Status.OK).entity("Пользователь с Id " + userId + " удалён").build();
 
 
-//        Optional<User> userToDelete = Optional.ofNullable(repository.getUser(userId));
-//        boolean removed = false;
-//
-//        if (userToDelete.isPresent()) {
-//            repository.deleteUser(userId);
-//            removed = true;
-//        }
-//        if (removed) {
-//            return Response.status(Response.Status.fromStatusCode(204))
-//                    .entity("SUCCESS. User with userId " + userId + " deleted!").build();
-//        } else {
-////        return Response.status(Response.Status.BAD_REQUEST).build();
-//            return Response.status(Response.Status.BAD_REQUEST)
-//                    .entity("ERROR. No User found with userId = " + userId + "!").build();
-//        }
     }
 }
