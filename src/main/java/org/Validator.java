@@ -1,12 +1,26 @@
 package org;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.Exceptions.InvalidEmailException;
 import org.Exceptions.InvalidPasswordException;
 import org.Exceptions.InvalidUserNameException;
 
+import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 
 public class Validator {
+
+//    public static boolean validator (User user){
+//
+//        for (Field field : user.getClass().getFields()) {
+//            if(field.isAnnotationPresent(Size.class)){
+//
+//        } TODO
+//
+//        return false;
+//    }
 
     public static boolean isNameValid(String name) throws InvalidUserNameException {
 

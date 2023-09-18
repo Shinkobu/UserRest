@@ -44,7 +44,7 @@ public class Repository {
         }
     }
 
-    public User getUser(int id) {
+    public User getUser(int id) throws NoResultException {
         EntityManager em = ENTITY_MANAGER_FACTORY.createEntityManager();
 
         // the lowercase c refers to the object
@@ -61,8 +61,6 @@ public class Repository {
             user = tq.getSingleResult();
 //            System.out.println(user.getName() + " " + user.getUserId());
 
-        } catch (NoResultException ex) {
-            return null;
         } finally {
             em.close();
         }

@@ -19,6 +19,10 @@ public class User implements Serializable {
     @Column
     private String password;
 
+    // TODO Solve Problem with Id
+    // TODO Add tests
+    // TODO Add logging
+
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
