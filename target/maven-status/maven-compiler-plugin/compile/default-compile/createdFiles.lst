@@ -1,0 +1,7 @@
+org\User.class
+org\Exceptions\InvalidEmailException.class
+org\Exceptions\InvalidUserNameException.class
+org\ExceptionHandler.class
+org\Exceptions\UserRestException.class
+org\Controller.class
+org\Exceptions\InvalidPasswordException.class
