@@ -9,5 +9,13 @@
         <module name="UserRest" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="UserRest" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="UserRest" options="-parameters" />
+    </option>
   </component>
 </project>
