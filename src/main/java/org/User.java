@@ -28,7 +28,7 @@ public class User implements Serializable {
 
     @Id
     @Column
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)     // Id генерируется автоматически в базе данных
     private Integer userId;
 
     public User() {

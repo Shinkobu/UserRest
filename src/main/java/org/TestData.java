@@ -14,6 +14,7 @@ public class TestData {
         repository.addUser("Luigi", "luigi@google.com", "jfjf22jRf");
         repository.addUser("Jack Sparrow", "captainJack@google.com", "jfRjfj111222f");
         repository.addUser("Dirty Harry", "magnum44@google.com", "jfj11fRjf");
+        repository.addUser("Jim Reynor", "reynor@google.com", "jfjfj11Hf");
         repository.addUser("Max Payne", "payne@google.com", "jfjfj11Hf");
 
 //        repository.getUser(3);

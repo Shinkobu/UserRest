@@ -85,7 +85,7 @@ public class Controller {
     )
     public Response createUser(
             @RequestBody(
-                    description = "Пользователь, который будет создан",
+                    description = "Пользователь, который будет создан. Id пользователя генерируется автоматически в базе данных",
                     required = true,
                     content = @Content(schema = @Schema(implementation = User.class))
             )

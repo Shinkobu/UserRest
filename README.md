@@ -1,56 +1,85 @@
-# code-with-quarkus
+# Проект UserRest 
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## Структура проекта:
+- Класс Сontroller - REST-контроллер для обработки запросов клиента
+- Класс Repository - JPA-репозиторий для работы с базой данных
+- Класс User - описывает сущность Пользователя
+- Класс Validator - описывает методы валидации полей Пользователя (имя, пароль, почта)   
+- Класс ExceptionHandler - обрабатывает все специальные исключения (см. пакет Exceptions)
+- Класс TestData - тестовые данные для заполнения базы данных
+- Пакет Exception - содержит специальные исключения. 
+  - Класс UserRestException - родитель всех специальных исключений проекта
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
-## Running the application in dev mode
+## Начало работы
 
-You can run your application in dev mode that enables live coding using:
-```shell script
-./mvnw compile quarkus:dev
-```
+Для начала работы требуется:
+1) Настроить соединение с базой данных PostgreSQL. 
+   1) Настроить конфигурацию в файле ./resources/META-INF/persistence.xml
+2) Создать базу данных UserRest и таблицу users 
+   1) Транзакции прописаны в файле ./resources/table.sql
+3) Заполнить базу данных тестовыми значениями
+   1) Реализовано в классе TestData
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
 
-## Packaging and running the application
+## Техническое задание для тестового задания с использованием Rest API, Quarkus, JPA, Maven и PostgreSQL:
 
-The application can be packaged using:
-```shell script
-./mvnw package
-```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+`С комментариями`
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+1. Описание проекта:
+    - Разработка Rest API для управления сущностью "User" (Пользователь).`сделано`
 
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
-```
+2. Требования к функциональности API: `сделано`
+    - Создание нового пользователя с указанием имени, электронной почты и пароля. 
+    - Получение информации о пользователе по его идентификатору.
+    - Обновление информации о пользователе (имя, электронная почта, пароль).
+    - Удаление пользователя по его идентификатору.
+    - Получение списка всех пользователей.
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+3. Требования к технической реализации:`сделано`
+    - Использование Quarkus для создания приложения.
+    - Использование JPA (Java Persistence API) для взаимодействия с базой данных.
+    - Использование PostgreSQL в качестве базы данных.
+    - Использование Java в качестве основного языка программирования.
 
-## Creating a native executable
+4. Структура проекта:`сделано`
+    - Создание модели "User" с полями: идентификатор, имя, электронная почта, пароль. `Реализовано в классе User`
+    - Создание репозитория JPA для доступа к данным пользователей.`Реализовано в классе Repository`
+    - Создание контроллера Rest API для обработки запросов от клиента. `Реализовано в классе Controller`
+    - Конфигурация подключения к базе данных PostgreSQL. `Конфигурация в файле ./resources/META-INF/persistence.xml`
 
-You can create a native executable using: 
-```shell script
-./mvnw package -Dnative
-```
+5. Дополнительные требования:
+    - Реализация контроллера и сервисов с использованием хороших практик проектирования и разделения ответственностей.
+    - Обработка ошибок и исключений с использованием соответствующих HTTP-статусов и сообщений об ошибках.`сделано`
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+6. Документация:
+    - Добавление Swagger для автоматической генерации документации API.`сделано`
 
-You can then execute your native executable with: `./target/code-with-quarkus-1.0.0-SNAPSHOT-runner`
+7. Требования к комментариям и коду:
+    - Код должен быть хорошо комментирован и иметь понятные названия переменных, методов и классов. 
+    - Использование хороших практик программирования и оформления кода.
+8. Требования к валидации полей User: `Реализовано в классе Validator`
+    - Поле "имя" (name) должно содержать только буквы и быть не пустым.
+    - Поле "электронная почта" (email) должно быть валидным адресом электронной почты.
+    - Поле "пароль" (password) должно быть не меньше 8 символов и содержать хотя бы одну букву верхнего регистра, одну букву нижнего регистра и одну цифру.
+9. Требования к обработке исключений при помощи Handler:`Реализовано в классе ExceptionHandler и специальных исключениях
+в пакете Exceptions`
+     - Создание обработчика исключений (ExceptionHandler), который будет обрабатывать различные исключения, возникающие в приложении.
+     - Обработка исключения, если поле User не прошло валидацию (например, имя не содержит только буквы).
+     - Обработка исключения, если поле User не прошло проверку на уникальность (например, электронная почта уже зарегистрирована в системе).
+     - Возвращение соответствующего HTTP-статуса и сообщения об ошибке в формате JSON при возникновении исключений.
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
+11. Дополнительные требования к комментариям и коду:
+    - Валидация полей User должна быть реализована в отдельном классе для повторного использования и улучшения читаемости кода. 
+    `Реализовано в классе Validator`
+    - Использование аннотаций валидации (например, `@NotBlank`, `@Email`, `@Size`) для аннотирования полей User. `Не сделано. 
+Реализовано через регулярные выражения в классе Validator`
+    - Обработчик исключений должен быть реализован в отдельном классе для централизованной обработки исключений в приложении. 
+`Реализовано в классе Validator`
+    - Комментарии должны быть добавлены к важным блокам кода, объясняющим логику и особенности реализации.
 
-## Provided Code
+12. Дополнительные бонусные задания (необязательно):
+- Добавление аутентификации и авторизации для защиты API. `Не сделано`
+- Реализация пагинации и сортировки для списка пользователей. `Не сделано`
+- Добавление возможности загрузки и хранения изображений для пользователей. `Не сделано`
 
-### RESTEasy Reactive
-
-Easily start your Reactive RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)

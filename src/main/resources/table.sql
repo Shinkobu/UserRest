@@ -1,3 +1,7 @@
+-- DROP DATABASE IF EXISTS UserRest;
+
+-- CREATE DATABASE UserRest;
+
 DROP TABLE IF EXISTS users; 
 
 CREATE TABLE users(
